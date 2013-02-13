@@ -1,5 +1,7 @@
-#!/usr/bin/python2
-# 'To be done' file parser
+#!/usr/bin/env python2
+#
+# To-do file parser
+#
 # Copyright (C) 2011  Nikola Kotur <kotnick@gmail.com>
 #
 # This program is free software: you can redistribute it and/or modify
@@ -14,32 +16,14 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-# todo.py start 5 - done
-# todo.py reset 5 - done
-# todo.py done 5 - done
-# todo.py add today 'Something' - done
-# todo.py clean - done
-# todo.py move 5 today -done
-# todo.py remove 5 - done
-# todo.py -a - done
-# todo.py -t - done
-# todo.py -s - done
-# todo.py -l - done
-
+#
 # TODO:
 #
-# python package
-# git repo
-# error handling
-# custom todo file
-# program configuration file ~/.todopyrc
-# help
-# better parameters handling (use todo.py ls, and argparse)
+# Error handling
+# Program configuration in ~/.todopyrc
 
-
-from optparse import OptionParser
-
+import sys
+import argparse
 
 class TodoParser:
     """ To-do file manipulation class.
@@ -55,7 +39,7 @@ class TodoParser:
     def __init__(self, filename, options):
         self.item_mark = 1
         self.changed = False
-        self.opt_all = options.opt_all
+        self.options = options
         self.filename = filename
         self.txt = {}
         self.txt['today']  = '---------------------------------\n'
@@ -75,16 +59,23 @@ class TodoParser:
         self.txt['footer'] += '[ ]This is a task I intend to complete today, soon or later\n'
         self.todo = self.parse_todo(filename)
 
+    # TODO: refactor me: don't use __del__
     def __del__(self):
-        if self.changed:
+        self.save_todo()
+
+    def save_todo(self, force=False):
+        if force or self.changed:
             contents = ''
             modes=['today', 'soon', 'later']
             for mode in modes:
                 contents += self.txt[mode]
-                mode_items = self.todo.get(mode, [])
-                for item in mode_items:
-                    contents += '['+ item['status'] +'] ' + item['data'] + '\n';
-                contents += '\n'
+                try:
+                    mode_items = self.todo.get(mode, [])
+                    for item in mode_items:
+                        contents += '['+ item['status'] +'] ' + item['data'] + '\n';
+                    contents += '\n'
+                except AttributeError:
+                    pass
             contents += self.txt['footer']
 
             file = open(self.filename, 'w')
@@ -95,29 +86,34 @@ class TodoParser:
         """
         Parse txt todo file into a variable.
         """
-        todo_file = open(filename)
         todo_data = {}
-        mode = 'today'
-        done_parsing = False
-        for line in todo_file:
-            if line.strip():
-                if line.startswith('-' * 40):
-                    done_parsing = True
-                if done_parsing or line.startswith('--'):
-                    continue
-                if line.startswith('|'):
-                    if 'TODO TODAY' in line:
-                        mode = 'today'
-                    elif 'TODO SOON' in line:
-                        mode = 'soon'
-                    elif 'TODO LATER' in line:
-                        mode = 'later'
-                    continue
-                if (not mode in todo_data):
-                    todo_data[mode] = []
+        try:
+            todo_file = open(filename)
+            mode = 'today'
+            done_parsing = False
+            for line in todo_file:
+                if line.strip():
+                    if line.startswith('-' * 40):
+                        done_parsing = True
+                    if done_parsing or line.startswith('--'):
+                        continue
+                    if line.startswith('|'):
+                        if 'TODO TODAY' in line:
+                            mode = 'today'
+                        elif 'TODO SOON' in line:
+                            mode = 'soon'
+                        elif 'TODO LATER' in line:
+                            mode = 'later'
+                        continue
+                    if (not mode in todo_data):
+                        todo_data[mode] = []
 
-                todo_item = self.parse_todo_item(line.strip())
-                todo_data[mode].append(todo_item)
+                    todo_item = self.parse_todo_item(line.strip())
+                    todo_data[mode].append(todo_item)
+        except IOError:
+            # There is no file, create it.
+
+            self.save_todo(force=True)
         return todo_data
 
     def parse_todo_item(self, line):
@@ -142,7 +138,7 @@ class TodoParser:
         out = ''
         for mode in modes:
             empty_block = True
-            if self.opt_all:
+            if self.options.opt_all:
                 empty_block = False
             else:
                 mode_items = self.todo.get(mode, [])
@@ -154,7 +150,7 @@ class TodoParser:
                 if len(self.todo[mode]):
                     out += '\n' + mode.upper() + '\n-----\n'
                 for item in self.todo[mode]:
-                    if self.opt_all or item['status'] != '+':
+                    if self.options.opt_all or item['status'] != '+':
                         item_desc = item['data']
                         if item['status'] == '+':
                             item_desc = '(DONE) ' + item_desc
@@ -244,29 +240,65 @@ class TodoParser:
         return out
 
 
-def parse_parameters():
-    """
-    Parse command line parameters.
-    """
-    parser = OptionParser()
-    parser.add_option("-a", "--all", action="store_true",  dest="opt_all",
+if __name__ == '__main__':
+    # Parse arguments.
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers(
+        dest="action", help='commands, use [command -h] to get additional help'
+    )
+
+    # Listing to-do items.
+    list_parser = subparsers.add_parser("ls", help='list to-do items')
+    list_parser.add_argument("-a", "--all", action="store_true",  dest="opt_all",
                   help="show all tasks")
-    parser.add_option("-t", "--today", action="store_const",
+    list_parser.add_argument("-t", "--today", action="store_const",
                   dest="opt_today", const="today",
                   default=None, help="show today")
-    parser.add_option("-s", "--soon", action="store_const",
+    list_parser.add_argument("-s", "--soon", action="store_const",
                   dest="opt_soon", const="soon",
                   default=None, help="show soon")
-    parser.add_option("-l", "--later", action="store_const",
+    list_parser.add_argument("-l", "--later", action="store_const",
                   dest="opt_later", const="later",
                   default=None, help="show later")
-    return parser.parse_args()
 
-if __name__ == '__main__':
-    (options, args) = parse_parameters()
+    # Start to-do item.
+    start_parser  = subparsers.add_parser("start", help="start to-do item")
+    start_parser.add_argument("item", action="store", help="number of to-do item", type=int)
+
+    # Reset to-do item.
+    reset_parser  = subparsers.add_parser("reset", help="reset to-do item")
+    reset_parser.add_argument("item", action="store", help="number of to-do item", type=int)
+
+    # Mark to-do item as done.
+    done_parser  = subparsers.add_parser("done", help="mark to-do item as done")
+    done_parser.add_argument("item", action="store", help="number of to-do item", type=int)
+
+    # Remove to-do item.
+    remove_parser  = subparsers.add_parser("remove", help="remove to-do item")
+    remove_parser.add_argument("item", action="store", help="number of to-do item", type=int)
+
+    # Clean to-do items.
+    clean_parser  = subparsers.add_parser("clean", help="remove all done to-do items")
+
+    # Add to-do item.
+    add_parser  = subparsers.add_parser("add", help="add to-do item")
+    add_parser.add_argument("when", action="store", help="list to add to, one of: [today | soon | later]")
+    add_parser.add_argument("desc", action="store", help="to-do item description, enclose in quotes")
+
+    # Move to-do item.
+    move_parser  = subparsers.add_parser("move", help="move to-do item")
+    move_parser.add_argument("item", action="store", help="number of to-do item", type=int)
+    move_parser.add_argument("where", action="store", help="list to move to, one of: [today | soon | later]")
+
+    if (len(sys.argv) < 2):
+        options = parser.parse_args(['ls'])
+    else:
+        options = parser.parse_args()
+        # args = parser.parse_args(sys.argv[1:])
+
     todo = TodoParser('/home/kotnik/todo.log', options);
 
-    if len(args) == 0:
+    if options.action == "ls":
         modes = []
         if (not options.opt_today and not options.opt_soon and not options.opt_later):
             modes = ['today', 'soon', 'later']
@@ -278,44 +310,44 @@ if __name__ == '__main__':
             modes.append('later')
         print todo.current(modes)
     else:
-        if args[0] == 'start':
-            ret_str = todo.start(int(args[1]))
+        if options.action == 'start':
+            ret_str = todo.start(options.item)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
                 print ret_str
-        elif args[0] == 'reset':
-            ret_str = todo.reset(int(args[1]))
+        elif options.action == 'reset':
+            ret_str = todo.reset(options.item)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
                 print ret_str
-        elif args[0] == 'done':
-            ret_str = todo.done(int(args[1]))
+        elif options.action == 'done':
+            ret_str = todo.done(options.item)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
                 print ret_str
-        elif args[0] == 'remove':
-            ret_str = todo.remove(int(args[1]))
+        elif options.action == 'remove':
+            ret_str = todo.remove(options.item)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
                 print ret_str
-        elif args[0] == 'add':
-            ret_str = todo.add(args[1], args[2])
+        elif options.action == 'add':
+            ret_str = todo.add(options.when, options.desc)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
                 print ret_str
-        elif args[0] == 'clean':
+        elif options.action == 'clean':
             ret_str = todo.clean()
             if len(ret_str) == 0:
                 print "Nothing done."
             else:
                 print ret_str
-        elif args[0] == 'move':
-            ret_str = todo.move(int(args[1]), args[2])
+        elif options.action == 'move':
+            ret_str = todo.move(options.item, options.where)
             if len(ret_str) == 0:
                 print "Nothing to do."
             else:
