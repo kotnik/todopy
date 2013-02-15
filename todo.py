@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 #
 # To-do file parser
 #
@@ -21,6 +21,8 @@
 #
 # Error handling
 # Program configuration in ~/.todopyrc
+
+from __future__ import print_function
 
 import sys
 import argparse
@@ -308,47 +310,47 @@ if __name__ == '__main__':
             modes.append('soon')
         if options.opt_later:
             modes.append('later')
-        print todo.current(modes)
+        print(todo.current(modes))
     else:
         if options.action == 'start':
             ret_str = todo.start(options.item)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'reset':
             ret_str = todo.reset(options.item)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'done':
             ret_str = todo.done(options.item)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'remove':
             ret_str = todo.remove(options.item)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'add':
             ret_str = todo.add(options.when, options.desc)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'clean':
             ret_str = todo.clean()
             if len(ret_str) == 0:
-                print "Nothing done."
+                print("Nothing done.")
             else:
-                print ret_str
+                print(ret_str)
         elif options.action == 'move':
             ret_str = todo.move(options.item, options.where)
             if len(ret_str) == 0:
-                print "Nothing to do."
+                print("Nothing to do.")
             else:
-                print ret_str
+                print(ret_str)
