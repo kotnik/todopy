@@ -26,23 +26,21 @@ from __future__ import print_function
 
 import sys
 import argparse
+from os.path import expanduser
 
 class TodoParser:
     """ To-do file manipulation class.
 
     Creates and updates to-do file.
 
-    :param filename: The name of the to-do file.
-    :type filename: string
     :param options: Parsed program options.
     :type options: dict
     """
 
-    def __init__(self, filename, options):
+    def __init__(self, options):
         self.item_mark = 1
         self.changed = False
         self.options = options
-        self.filename = filename
         self.txt = {}
         self.txt['today']  = '---------------------------------\n'
         self.txt['today'] += '|          TODO TODAY           |\n'
@@ -59,7 +57,7 @@ class TodoParser:
         self.txt['footer'] += '[+]This is a task I have already completed\n'
         self.txt['footer'] += '[.]This is a task I have started but not completed\n'
         self.txt['footer'] += '[ ]This is a task I intend to complete today, soon or later\n'
-        self.todo = self.parse_todo(filename)
+        self.todo = self.parse_todo(options.config)
 
     # TODO: refactor me: don't use __del__
     def __del__(self):
@@ -80,7 +78,7 @@ class TodoParser:
                     pass
             contents += self.txt['footer']
 
-            file = open(self.filename, 'w')
+            file = open(self.options.config, 'w')
             file.write(contents)
             file.close()
 
@@ -245,6 +243,8 @@ class TodoParser:
 if __name__ == '__main__':
     # Parse arguments.
     parser = argparse.ArgumentParser()
+    parser.add_argument("-c", "--config", help="configuration file location",
+                        default="%s/todo.log" % expanduser("~"))
     subparsers = parser.add_subparsers(
         dest="action", help='commands, use [command -h] to get additional help'
     )
@@ -292,13 +292,15 @@ if __name__ == '__main__':
     move_parser.add_argument("item", action="store", help="number of to-do item", type=int)
     move_parser.add_argument("where", action="store", help="list to move to, one of: [today | soon | later]")
 
-    if (len(sys.argv) < 2):
-        options = parser.parse_args(['ls'])
-    else:
-        options = parser.parse_args()
-        # args = parser.parse_args(sys.argv[1:])
+    options = parser.parse_args()
+    if not options.action:
+        options.action = "ls"
+        options.opt_today = options.opt_soon = options.opt_later = options.opt_all = None
 
-    todo = TodoParser('/home/kotnik/todo.log', options);
+    print (options)
+    print (sys.argv)
+
+    todo = TodoParser(options);
 
     if options.action == "ls":
         modes = []
