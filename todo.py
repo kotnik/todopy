@@ -297,9 +297,6 @@ if __name__ == '__main__':
         options.action = "ls"
         options.opt_today = options.opt_soon = options.opt_later = options.opt_all = None
 
-    print (options)
-    print (sys.argv)
-
     todo = TodoParser(options);
 
     if options.action == "ls":
