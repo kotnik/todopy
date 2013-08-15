@@ -15,7 +15,7 @@ Installation
 
 The easiest way is to install it with pip:
 
-    pip install todopy
+    pip install -i https://testpypi.python.org/pypi todopy
 
 Usage
 -----
