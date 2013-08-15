@@ -13,8 +13,9 @@ not.
 Installation
 ------------
 
-Being this simple, there is no need to install `todo.py`. Just symlink it
-somewhere in your `$PATH` and you're done.
+The easiest way is to install it with pip:
+
+    pip install todopy
 
 Usage
 -----
