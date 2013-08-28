@@ -7,7 +7,7 @@ with open(os.path.join(root_dir, "README.md")) as f:
 
 setup(
     name='todopy2',
-    version='1.1',
+    version='1.2',
     description='Simple to-do list CLI manager in Python',
     long_description=README,
     url='https://github.com/kotnik/todopy2',
