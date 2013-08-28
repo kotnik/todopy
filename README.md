@@ -1,8 +1,9 @@
-Todo.py
+Todopy2
 =======
 
-Todo.py is tiny Python program that helps you manage your stupid and utterly
-simple todo list, that you hold in plain text file (`$HOME/todo.py` by default).
+Todopy2 is tiny Python program that helps you manage your stupid and utterly
+simple todo list, that you hold in plain text file (`$HOME/todo.log` by
+default).
 
 You might ask yourself: "Why the hell would you keep your todo list in a file?"
 If you do, then please move along, there is nothing interesing for you to see
@@ -15,28 +16,30 @@ Installation
 
 The easiest way is to install it with pip:
 
-    pip install -i https://testpypi.python.org/pypi todopy
+    pip install todopy2
+
+After that, you'll have `todo` executable in your path to invoke.
 
 Usage
 -----
 
 **Listing tasks**
 
-To list all task, just invoke the program:
+To list all task, just invoke the program without any arguments:
 
-    todo.py
+    todo
 
 You can use built-in help to refine it a little bit. Consult:
 
-    todo.py -h
+    todo -h
 
 **Adding tasks**
 
-    todo.py add today 'Shuffle keys to make Dvorak keyboard'
+    todo add today 'Shuffle keys to make Dvorak keyboard'
 
 **Starting tasks**
 
-    todo.py start 1
+    todo start 1
 
 That number up there is the item number. You can see item numbers when you list
 tasks.
@@ -45,32 +48,32 @@ tasks.
 
 Since you know you will mark stuff as started, and then forget about it:
 
-    todo.py reset 1
+    todo reset 1
 
 **Marking it as done**
 
-    todo.py done 1
+    todo done 1
 
 **Cleaning**
 
 It is just a text file, but we sure do a lot of stuff. This command removes
 items that are done:
 
-    todo.py clean
+    todo clean
 
 **Moving around**
 
 You figured out you won't be able to make it today, lets move it to later:
 
-    todo.py move 1 later
+    todo move 1 later
 
 **Removing items**
 
 Yeah, let's not do that at all:
 
-    todo.py remove 1
+    todo remove 1
 
-Licence
+License
 -------
 
 This program is free software: you can redistribute it and/or modify it under

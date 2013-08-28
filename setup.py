@@ -6,11 +6,11 @@ with open(os.path.join(root_dir, "README.md")) as f:
     README = f.read()
 
 setup(
-    name='todopy',
+    name='todopy2',
     version='1.1',
     description='Simple to-do list CLI manager in Python',
     long_description=README,
-    url='https://github.com/kotnik/todopy',
+    url='https://github.com/kotnik/todopy2',
     license='GPLv3+',
     author='Nikola Kotur',
     author_email='kotnick@gmail.com',

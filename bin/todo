@@ -14,13 +14,13 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 try:
-    from todopy import main
+    from todopy2 import main
 except ImportError:
     import os
     import sys
     path = os.path.join(os.path.dirname(__file__), "..")
-    if os.path.exists(os.path.join(path, 'todopy', '__init__.py')):
+    if os.path.exists(os.path.join(path, 'todopy2', '__init__.py')):
         sys.path.insert(0, path)
-    from todopy import main
+    from todopy2 import main
 
 main()
