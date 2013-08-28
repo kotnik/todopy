@@ -193,7 +193,7 @@ class TodoParser:
         out = ''
         modes=['today', 'soon', 'later']
         for mode in modes:
-            if self.todo[mode]:
+            if self.todo.get(mode, None):
                 for item in self.todo[mode]:
                     if item['mark'] == num:
                         # Update tree
