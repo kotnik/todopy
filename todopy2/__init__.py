@@ -70,7 +70,7 @@ def main():
     remove_parser.add_argument("item", action="store", help="number of to-do item", type=int)
 
     # Clean to-do items.
-    clean_parser = subparsers.add_parser("clean", help="remove all done to-do items")
+    subparsers.add_parser("clean", help="remove all done to-do items")
 
     # Add to-do item.
     add_parser = subparsers.add_parser("add", help="add to-do item")
