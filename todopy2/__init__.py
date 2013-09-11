@@ -25,6 +25,7 @@
 from __future__ import print_function
 
 import argparse
+import sys
 from os.path import expanduser
 
 from .parser import TodoParser
@@ -81,10 +82,8 @@ def main():
     move_parser.add_argument("item", action="store", help="number of to-do item", type=int)
     move_parser.add_argument("where", action="store", help="list to move to, one of: [today | soon | later]")
 
-    options = parser.parse_args()
-    if not options.action:
-        options.action = "ls"
-        options.opt_today = options.opt_soon = options.opt_later = options.opt_all = None
+    parameters = sys.argv[1:]
+    options = parser.parse_args(parameters if parameters else [ "ls" ])
 
     todo = TodoParser(options);
 
